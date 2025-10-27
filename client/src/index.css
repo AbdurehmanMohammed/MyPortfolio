@@ -1,0 +1,98 @@
+/* index.css - Portfolio optimized version */
+
+/* Import Google Fonts for better typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Modern CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #ffffff;
+  min-height: 100vh;
+  /* Remove the flex centering from default Vite */
+  display: block;
+  place-items: initial;
+  margin: 0;
+  padding-top: 70px; /* Account for fixed navbar */
+}
+
+/* Ensure proper text rendering */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset default heading sizes for consistency */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+/* Links styling */
+a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #0056b3;
+}
+
+/* Remove default button styles that might interfere */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Ensure images are responsive by default */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Remove list bullets by default */
+ul, ol {
+  list-style: none;
+}
+
+/* Focus styles for accessibility */
+:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  body {
+    padding-top: 60px;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    padding-top: 0;
+  }
+}
