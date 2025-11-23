@@ -8,25 +8,26 @@ import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
 import projectRoutes from "./routes/project.routes.js";
-import qualificationRoutes from "./routes/qualification.routes.js"; // ADD THIS
+import qualificationRoutes from "./routes/qualification.routes.js";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Register your routes
-app.use("/api/contacts", contactRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/qualifications", qualificationRoutes); // ADD THIS
-app.use("/", userRoutes);
-app.use("/", authRoutes);
-
+// Middleware should come BEFORE routes
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compress());
 app.use(helmet());
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Register your routes
+app.use("/api/contacts", contactRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/qualifications", qualificationRoutes);
+app.use("/", userRoutes);
+app.use("/api", authRoutes);  // This makes auth routes available at /api/auth/*
 
 app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {

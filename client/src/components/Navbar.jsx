@@ -1,6 +1,6 @@
 // components/Navbar.jsx
 import React, { useState, useEffect } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 // Custom SVG logo component
 function Logo() {
@@ -42,6 +42,16 @@ const activeClass = ({ isActive }) => isActive ? 'navlink active' : 'navlink'
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [user, setUser] = useState(null)
+  const navigate = useNavigate()
+
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
 
   // Handle scroll effect
   useEffect(() => {
@@ -60,6 +70,16 @@ export default function Navbar() {
   // Close menu when link is clicked (mobile)
   const closeMenu = () => {
     setIsMenuOpen(false)
+  }
+
+  // Handle sign out
+  const handleSignout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+    closeMenu()
+    navigate('/')
+    alert('Signed out successfully!')
   }
 
   return (
@@ -90,6 +110,30 @@ export default function Navbar() {
           <NavLink to="/contact" className={activeClass}>
             Contact
           </NavLink>
+
+          {/* Authentication Links - Desktop */}
+          {user ? (
+            <div className="auth-section">
+              <span className="user-welcome">Welcome, {user.name}</span>
+              {user.role === 'Admin' && (
+                <NavLink to="/admin" className={activeClass}>
+                  Admin
+                </NavLink>
+              )}
+              <button onClick={handleSignout} className="navlink signout-btn">
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <div className="auth-section">
+              <NavLink to="/login" className={activeClass}>
+                Login
+              </NavLink>
+              <NavLink to="/signup" className={activeClass}>
+                Sign Up
+              </NavLink>
+            </div>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -129,6 +173,37 @@ export default function Navbar() {
             <span className="nav-icon">📧</span>
             Contact
           </NavLink>
+
+          {/* Authentication Links - Mobile */}
+          {user ? (
+            <>
+              <div className="mobile-user-info">
+                <span className="nav-icon">👋</span>
+                Welcome, {user.name}
+              </div>
+              {user.role === 'Admin' && (
+                <NavLink to="/admin" className={activeClass} onClick={closeMenu}>
+                  <span className="nav-icon">⚙️</span>
+                  Admin
+                </NavLink>
+              )}
+              <button onClick={handleSignout} className="navlink signout-btn">
+                <span className="nav-icon">🚪</span>
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={activeClass} onClick={closeMenu}>
+                <span className="nav-icon">🔐</span>
+                Login
+              </NavLink>
+              <NavLink to="/signup" className={activeClass} onClick={closeMenu}>
+                <span className="nav-icon">📝</span>
+                Sign Up
+              </NavLink>
+            </>
+          )}
         </nav>
 
         {/* Mobile Menu Overlay */}

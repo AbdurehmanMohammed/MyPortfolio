@@ -1,24 +1,17 @@
 import express from 'express';
 import * as contactController from '../controllers/contact.controller.js';
+import authCtrl from '../controllers/auth.controller.js'; // ADD THIS
 
 const router = express.Router();
 
-// Create a new Contact
+// Create a new Contact (public route - anyone can contact)
 router.post('/', contactController.create);
 
-// Retrieve all Contacts
-router.get('/', contactController.findAll);
-
-// Retrieve a single Contact with contactId
-router.get('/:contactId', contactController.findOne);
-
-// Update a Contact with contactId
-router.put('/:contactId', contactController.update);
-
-// Delete a Contact with contactId
-router.delete('/:contactId', contactController.deleteOne);
-
-// Delete all Contacts
-router.delete('/', contactController.deleteAll);
+// PROTECTED ROUTES - Require authentication
+router.get('/', authCtrl.requireSignin, contactController.findAll);
+router.get('/:contactId', authCtrl.requireSignin, contactController.findOne);
+router.put('/:contactId', authCtrl.requireSignin, contactController.update);
+router.delete('/:contactId', authCtrl.requireSignin, contactController.deleteOne);
+router.delete('/', authCtrl.requireSignin, contactController.deleteAll);
 
 export default router;

@@ -15,7 +15,8 @@
     "dev": "concurrently 'vite' \"nodemon server.js\"",
     "build": "vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "create-admin": "node scripts/createAdmin.js"
   },
   "dependencies": {
     "body-parser": "^2.2.0",

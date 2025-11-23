@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Contact() {
   const [form, setForm] = useState({ 
-    firstName: '', 
-    lastName: '', 
-    phone: '', 
+    firstname: '', 
+    lastname: '', 
     email: '', 
     message: '' 
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const navigate = useNavigate()
 
   function handleChange(e) {
@@ -18,13 +19,15 @@ export default function Contact() {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setIsSubmitting(true)
+    setError('')
+    setSuccess('')
 
     // Basic required field checking
-    if (!form.firstName || !form.email || !form.message) {
-      alert('Please fill in First Name, Email, and Message fields.')
+    if (!form.firstname || !form.email || !form.message) {
+      setError('Please fill in First Name, Email, and Message fields.')
       setIsSubmitting(false)
       return
     }
@@ -32,54 +35,50 @@ export default function Contact() {
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(form.email)) {
-      alert('Please enter a valid email address.')
+      setError('Please enter a valid email address.')
       setIsSubmitting(false)
       return
     }
 
-    // Create mailto link with form data
-    const subject = `Portfolio Contact from ${form.firstName} ${form.lastName}`
-    const body = `Hello Abdurehman,
+    try {
+      // Get token for authenticated requests
+      const token = localStorage.getItem('token')
+      
+      const response = await fetch('http://localhost:5000/api/contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify({
+          firstname: form.firstname,
+          lastname: form.lastname,
+          email: form.email,
+          message: form.message
+        }),
+      })
 
-I'm reaching out through your portfolio website.
+      const data = await response.json()
 
-Contact Details:
-Name: ${form.firstName} ${form.lastName}
-Email: ${form.email}
-Phone: ${form.phone || 'Not provided'}
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message')
+      }
 
-Message:
-${form.message}
+      setSuccess(`Thank you ${form.firstname}! Your message has been sent successfully. I'll get back to you soon!`)
+      
+      // Reset form
+      setForm({ firstname: '', lastname: '', email: '', message: '' })
 
-Best regards,
-${form.firstName}`
-
-    const mailtoLink = `mailto:m.abdul2224@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    
-    // Open email client
-    window.open(mailtoLink, '_blank')
-
-    // Save to localStorage as demo backend (meets capture + redirect requirement)
-    const stored = JSON.parse(localStorage.getItem('portfolio_messages') || '[]')
-    stored.push({ 
-      ...form, 
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      status: 'email_sent'
-    })
-    localStorage.setItem('portfolio_messages', JSON.stringify(stored))
-
-    // Show success message
-    alert(`Thank you ${form.firstName}! Your email client should open now with a pre-filled message. I'll get back to you soon!`)
-
-    // Reset form
-    setForm({ firstName: '', lastName: '', phone: '', email: '', message: '' })
-
-    // Redirect to home after brief delay
-    setTimeout(() => {
+      // Redirect to home after brief delay
+      setTimeout(() => {
+        navigate('/')
+      }, 3000)
+      
+    } catch (err) {
+      setError(err.message)
+    } finally {
       setIsSubmitting(false)
-      navigate('/')
-    }, 2000)
+    }
   }
 
   return (
@@ -161,18 +160,6 @@ ${form.firstName}`
                     </a>
                   </div>
                 </div>
-
-                {/* Direct Email Button */}
-                <div className="direct-contact">
-                  <h4>Quick Contact</h4>
-                  <a 
-                    href="mailto:m.abdul2224@gmail.com?subject=Portfolio Inquiry&body=Hello Abdurehman,%0D%0A%0D%0AI'm interested in discussing a project with you.%0D%0A%0D%0ABest regards"
-                    className="btn btn-primary"
-                    style={{ display: 'block', textAlign: 'center', marginTop: '15px' }}
-                  >
-                    📧 Send Quick Email
-                  </a>
-                </div>
               </div>
             </div>
 
@@ -181,64 +168,63 @@ ${form.firstName}`
               <div className="form-card">
                 <h2>Send Me a Message</h2>
                 <p className="form-intro">
-                  Fill out the form below and your email client will open with a pre-filled message.
+                  Fill out the form below and your message will be saved to our database.
                 </p>
                 
+                {/* Success and Error Messages */}
+                {success && (
+                  <div className="success-message">
+                    {success}
+                  </div>
+                )}
+                
+                {error && (
+                  <div className="error-message">
+                    {error}
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="contact-form">
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor="firstName">First Name *</label>
+                      <label htmlFor="firstname">First Name *</label>
                       <input 
                         type="text"
-                        id="firstName"
-                        name="firstName" 
+                        id="firstname"
+                        name="firstname" 
                         placeholder="Enter your first name" 
-                        value={form.firstName} 
+                        value={form.firstname} 
                         onChange={handleChange}
-                        className={!form.firstName ? 'required' : ''}
+                        className={!form.firstname ? 'required' : ''}
                         required
                       />
                     </div>
                     
                     <div className="form-group">
-                      <label htmlFor="lastName">Last Name</label>
+                      <label htmlFor="lastname">Last Name</label>
                       <input 
                         type="text"
-                        id="lastName"
-                        name="lastName" 
+                        id="lastname"
+                        name="lastname" 
                         placeholder="Enter your last name" 
-                        value={form.lastName} 
+                        value={form.lastname} 
                         onChange={handleChange}
                       />
                     </div>
                   </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="email">Email Address *</label>
-                      <input 
-                        type="email"
-                        id="email"
-                        name="email" 
-                        placeholder="Enter your email address" 
-                        value={form.email} 
-                        onChange={handleChange}
-                        className={!form.email ? 'required' : ''}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor="phone">Phone Number</label>
-                      <input 
-                        type="tel"
-                        id="phone"
-                        name="phone" 
-                        placeholder="Enter your phone number" 
-                        value={form.phone} 
-                        onChange={handleChange}
-                      />
-                    </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Email Address *</label>
+                    <input 
+                      type="email"
+                      id="email"
+                      name="email" 
+                      placeholder="Enter your email address" 
+                      value={form.email} 
+                      onChange={handleChange}
+                      className={!form.email ? 'required' : ''}
+                      required
+                    />
                   </div>
 
                   <div className="form-group">
@@ -261,11 +247,11 @@ ${form.firstName}`
                       className={`submit-btn ${isSubmitting ? 'submitting' : ''}`}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? '📧 Opening Email...' : '📧 Send via Email'}
+                      {isSubmitting ? 'Sending Message...' : 'Send Message'}
                     </button>
                     <p className="required-note">* Required fields</p>
-                    <p className="email-note">
-                      This will open your default email client with a pre-filled message
+                    <p className="api-note">
+                      This will save your message to our database
                     </p>
                   </div>
                 </form>

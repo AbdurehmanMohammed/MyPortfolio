@@ -3,16 +3,17 @@ import Contact from '../models/contact.model.js';
 // Create and Save a new Contact
 export const create = async (req, res) => {
   try {
-    if (!req.body.firstname || !req.body.lastname || !req.body.email) {
+    if (!req.body.firstname || !req.body.email || !req.body.message) {
       return res.status(400).json({
-        message: "All fields (firstname, lastname, email) are required"
+        message: "All fields (firstname, email, message) are required"
       });
     }
 
     const contact = new Contact({
       firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      email: req.body.email
+      lastname: req.body.lastname || '', // Make lastname optional
+      email: req.body.email,
+      message: req.body.message // ADD THIS
     });
 
     const savedContact = await contact.save();
@@ -61,9 +62,9 @@ export const findOne = async (req, res) => {
 // Update a Contact by id
 export const update = async (req, res) => {
   try {
-    if (!req.body.firstname || !req.body.lastname || !req.body.email) {
+    if (!req.body.firstname || !req.body.email || !req.body.message) {
       return res.status(400).json({
-        message: "All fields (firstname, lastname, email) are required"
+        message: "All fields (firstname, email, message) are required"
       });
     }
 
@@ -71,8 +72,9 @@ export const update = async (req, res) => {
       req.params.contactId,
       {
         firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        email: req.body.email
+        lastname: req.body.lastname || '',
+        email: req.body.email,
+        message: req.body.message // ADD THIS
       },
       { new: true }
     );
